@@ -1,0 +1,80 @@
+<div class="container mt-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="mb-0">📋 Task Dashboard</h2>
+    <a routerLink="/add" class="btn btn-primary">
+      <i class="bi bi-plus-circle"></i> Add New Task
+    </a>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="text-center py-5">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+    <p class="mt-2 text-muted">Loading tasks...</p>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!isLoading && tasks.length === 0" class="text-center py-5">
+    <div class="alert alert-info">
+      <h4>No tasks yet!</h4>
+      <p class="mb-0">Get started by creating your first task.</p>
+      <a routerLink="/add" class="btn btn-info mt-2">Create Your First Task</a>
+    </div>
+  </div>
+
+  <!-- Tasks Grid -->
+  <div class="row" *ngIf="!isLoading && tasks.length > 0">
+    <div *ngFor="let task of tasks" class="col-md-6 col-lg-4 mb-4">
+      <div class="card task-card h-100" 
+           [class.completed-task]="task.status === 'completed'"
+           [class.border-success]="task.status === 'completed'">
+        
+        <div class="card-body">
+          <h5 class="card-title">{{ task.title }}</h5>
+          <p class="card-text text-muted">{{ task.description || 'No description' }}</p>
+          
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <span class="badge" [ngClass]="getStatusBadgeClass(task.status)">
+              {{ task.status | titlecase }}
+            </span>
+            <small class="text-muted">
+              {{ task.createdAt | date:'mediumDate' }}
+            </small>
+          </div>
+        </div>
+
+        <div class="card-footer bg-transparent">
+          <div class="btn-group w-100">
+            <button class="btn btn-sm" 
+                    [ngClass]="task.status === 'pending' ? 'btn-success' : 'btn-secondary'"
+                    (click)="toggleTaskStatus(task)">
+              {{ task.status === 'pending' ? '✅ Complete' : '↩️ Undo' }}
+            </button>
+            
+            <a [routerLink]="['/edit', task.id]" 
+               class="btn btn-sm btn-outline-primary">
+              ✏️ Edit
+            </a>
+            
+            <button class="btn btn-sm btn-outline-danger" 
+                    (click)="deleteTask(task.id!)">
+              🗑 Delete
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tasks Summary -->
+  <div *ngIf="!isLoading && tasks.length > 0" class="mt-4">
+    <div class="alert alert-light border">
+      <small class="text-muted">
+        Total: {{ tasks.length }} | 
+        Completed: {{ tasks.length - tasks.length }} | 
+        Pending: {{ tasks.length }}
+      </small>
+    </div>
+  </div>
+</div>

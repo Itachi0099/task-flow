@@ -1,0 +1,28 @@
+{
+  "tasks": [
+    {
+      "id": "1",
+      "title": "Buy groceries",
+      "description": "Milk, eggs, bread, fruits, and vegetables",
+      "status": "pending",
+      "createdAt": "2024-01-15T10:30:00.000Z",
+      "updatedAt": "2024-01-15T10:30:00.000Z"
+    },
+    {
+      "id": "2",
+      "title": "Finish project report",
+      "description": "Complete the quarterly project documentation and submit to manager",
+      "status": "pending",
+      "createdAt": "2024-01-14T09:15:00.000Z",
+      "updatedAt": "2025-10-14T09:52:25.735Z"
+    },
+    {
+      "id": "3",
+      "title": "Schedule dentist appointment",
+      "description": "Call Dr. Smith's office for routine checkup",
+      "status": "pending",
+      "createdAt": "2024-01-16T08:00:00.000Z",
+      "updatedAt": "2024-01-16T08:00:00.000Z"
+    }
+  ]
+}

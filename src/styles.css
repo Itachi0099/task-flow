@@ -1,0 +1,22 @@
+/* You can add global styles to this file, and also import other style files */
+/* Import Bootstrap */
+@import 'bootstrap/dist/css/bootstrap.min.css';
+
+/* Custom styles */
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f8f9fa;
+}
+
+.task-card {
+  transition: transform 0.2s ease-in-out;
+}
+
+.task-card:hover {
+  transform: translateY(-2px);
+}
+
+.completed-task {
+  opacity: 0.8;
+  background-color: #f8fff9;
+}
