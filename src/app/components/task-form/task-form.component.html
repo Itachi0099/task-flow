@@ -9,45 +9,169 @@
         </div>
         
         <div class="card-body">
-          <form (ngSubmit)="onSubmit()" #taskForm="ngForm">
+          <form (ngSubmit)="onSubmit()" #taskForm="ngForm" novalidate>
             
-            <!-- Title Field -->
-            <div class="mb-3">
-              <label for="title" class="form-label">Title *</label>
-              <input
-                type="text"
-                class="form-control"
-                id="title"
-                name="title"
-                [(ngModel)]="task.title"
-                required
-                placeholder="Enter task title">
-              <div class="form-text">A clear, descriptive title for your task</div>
+            <!-- Basic Information Group -->
+            <div ngModelGroup="basicInfo" #basicInfo="ngModelGroup">
+              <!-- Title Field -->
+              <div class="mb-3">
+                <label for="title" class="form-label">Title *</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="title"
+                  name="title"
+                  [(ngModel)]="task.title"
+                  #titleField="ngModel"
+                  required
+                  minlength="3"
+                  maxlength="50"
+                  [ngClass]="{'is-invalid': titleField.invalid && (titleField.dirty || titleField.touched), 'is-valid': titleField.valid && (titleField.dirty || titleField.touched)}"
+                  placeholder="Enter task title">
+                <div *ngIf="titleField.invalid && (titleField.dirty || titleField.touched)" class="invalid-feedback">
+                  <div *ngIf="titleField.errors?.['required']">Title is required</div>
+                  <div *ngIf="titleField.errors?.['minlength']">Title must be at least 3 characters</div>
+                  <div *ngIf="titleField.errors?.['maxlength']">Title cannot exceed 50 characters</div>
+                </div>
+                <div class="form-text">A clear, descriptive title for your task</div>
+              </div>
+
+              <!-- Description Field -->
+              <div class="mb-3">
+                <label for="description" class="form-label">Description</label>
+                <textarea
+                  class="form-control"
+                  id="description"
+                  name="description"
+                  [(ngModel)]="task.description"
+                  #descriptionField="ngModel"
+                  maxlength="500"
+                  [ngClass]="{'is-invalid': descriptionField.invalid && (descriptionField.dirty || descriptionField.touched), 'is-valid': descriptionField.valid && descriptionField.dirty}"
+                  rows="4"
+                  placeholder="Enter task description (optional)"></textarea>
+                <div *ngIf="descriptionField.invalid && (descriptionField.dirty || descriptionField.touched)" class="invalid-feedback">
+                  <div *ngIf="descriptionField.errors?.['maxlength']">Description cannot exceed 500 characters</div>
+                </div>
+                <div class="form-text">Characters remaining: {{ 500 - (task.description?.length || 0) }}</div>
+              </div>
             </div>
 
-            <!-- Description Field -->
-            <div class="mb-3">
-              <label for="description" class="form-label">Description</label>
-              <textarea
-                class="form-control"
-                id="description"
-                name="description"
-                [(ngModel)]="task.description"
-                rows="4"
-                placeholder="Enter task description (optional)"></textarea>
+            <!-- Task Details Group -->
+            <div ngModelGroup="taskDetails" #taskDetails="ngModelGroup" class="mb-3">
+              <h5 class="mb-3">Task Details</h5>
+              
+              <!-- Priority Radio Buttons -->
+              <div class="mb-3">
+                <label class="form-label d-block">Priority</label>
+                <div class="form-check form-check-inline">
+                  <input class="form-check-input" type="radio" name="priority" id="priorityLow" 
+                    value="low" [(ngModel)]="task.priority">
+                  <label class="form-check-label" for="priorityLow">Low</label>
+                </div>
+                <div class="form-check form-check-inline">
+                  <input class="form-check-input" type="radio" name="priority" id="priorityMedium" 
+                    value="medium" [(ngModel)]="task.priority">
+                  <label class="form-check-label" for="priorityMedium">Medium</label>
+                </div>
+                <div class="form-check form-check-inline">
+                  <input class="form-check-input" type="radio" name="priority" id="priorityHigh" 
+                    value="high" [(ngModel)]="task.priority">
+                  <label class="form-check-label" for="priorityHigh">High</label>
+                </div>
+              </div>
+              
+              <!-- Category Dropdown -->
+              <div class="mb-3">
+                <label for="category" class="form-label">Category</label>
+                <select
+                  class="form-select"
+                  id="category"
+                  name="category"
+                  [(ngModel)]="task.category"
+                  #categoryField="ngModel"
+                  required
+                  [ngClass]="{'is-invalid': categoryField.invalid && (categoryField.dirty || categoryField.touched)}">
+                  <option value="">-- Select Category --</option>
+                  <option value="work">Work</option>
+                  <option value="personal">Personal</option>
+                  <option value="shopping">Shopping</option>
+                  <option value="health">Health</option>
+                  <option value="education">Education</option>
+                  <option value="other">Other</option>
+                </select>
+                <div *ngIf="categoryField.invalid && (categoryField.dirty || categoryField.touched)" class="invalid-feedback">
+                  <div *ngIf="categoryField.errors?.['required']">Please select a category</div>
+                </div>
+              </div>
+              
+              <!-- Due Date -->
+              <div class="mb-3">
+                <label for="dueDate" class="form-label">Due Date</label>
+                <input
+                  type="date"
+                  class="form-control"
+                  id="dueDate"
+                  name="dueDate"
+                  [(ngModel)]="task.dueDate"
+                  #dueDateField="ngModel">
+              </div>
+              
+              <!-- Tags Input -->
+              <div class="mb-3">
+                <label for="tags" class="form-label">Tags (comma separated)</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  id="tags"
+                  name="tags"
+                  [(ngModel)]="task.tags"
+                  placeholder="e.g. urgent, meeting, follow-up">
+              </div>
             </div>
-
-            <!-- Status Field -->
+            
+            <!-- Options Group -->
             <div class="mb-4">
-              <label for="status" class="form-label">Status</label>
-              <select
-                class="form-select"
-                id="status"
-                name="status"
-                [(ngModel)]="task.status">
-                <option value="pending">⏳ Pending</option>
-                <option value="completed">✅ Completed</option>
-              </select>
+              <h5 class="mb-3">Options</h5>
+              
+              <!-- Status Field -->
+              <div class="mb-3">
+                <label for="status" class="form-label">Status</label>
+                <select
+                  class="form-select"
+                  id="status"
+                  name="status"
+                  [(ngModel)]="task.status"
+                  required>
+                  <option value="pending">⏳ Pending</option>
+                  <option value="completed">✅ Completed</option>
+                </select>
+              </div>
+              
+              <!-- Reminder Checkbox -->
+              <div class="form-check mb-3">
+                <input 
+                  class="form-check-input" 
+                  type="checkbox" 
+                  id="setReminder" 
+                  name="setReminder"
+                  [(ngModel)]="task.reminder">
+                <label class="form-check-label" for="setReminder">
+                  Set Reminder
+                </label>
+              </div>
+              
+              <!-- Recurring Task Checkbox -->
+              <div class="form-check mb-3">
+                <input 
+                  class="form-check-input" 
+                  type="checkbox" 
+                  id="isRecurring" 
+                  name="isRecurring"
+                  [(ngModel)]="task.recurring">
+                <label class="form-check-label" for="isRecurring">
+                  Recurring Task
+                </label>
+              </div>
             </div>
 
             <!-- Form Actions -->
@@ -55,7 +179,7 @@
               <button
                 type="submit"
                 class="btn btn-primary flex-fill"
-                [disabled]="isSubmitting || !task.title.trim()">
+                [disabled]="taskForm.invalid || isSubmitting">
                 <span *ngIf="isSubmitting" class="spinner-border spinner-border-sm me-2"></span>
                 {{ isSubmitting ? 'Saving...' : (isEditMode ? 'Update Task' : 'Create Task') }}
               </button>
@@ -67,6 +191,15 @@
                 [disabled]="isSubmitting">
                 Cancel
               </button>
+            </div>
+            
+            <!-- Form Debug Info (remove in production) -->
+            <div class="mt-4 p-3 border rounded bg-light" *ngIf="showDebug">
+              <h6>Form State:</h6>
+              <pre>Valid: {{ taskForm.valid | json }}</pre>
+              <pre>Touched: {{ taskForm.touched | json }}</pre>
+              <pre>Submitted: {{ taskForm.submitted | json }}</pre>
+              <pre>Values: {{ taskForm.value | json }}</pre>
             </div>
           </form>
         </div>

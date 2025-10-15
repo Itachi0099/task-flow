@@ -35,12 +35,41 @@
           <p class="card-text text-muted">{{ task.description || 'No description' }}</p>
           
           <div class="d-flex justify-content-between align-items-center mb-3">
+            <!-- Priority Badge -->
+            <span *ngIf="task.priority" class="badge me-1" 
+              [ngClass]="{
+                'bg-danger': task.priority === 'high',
+                'bg-warning': task.priority === 'medium',
+                'bg-info': task.priority === 'low'
+              }">
+              {{ task.priority | titlecase }}
+            </span>
+            
             <span class="badge" [ngClass]="getStatusBadgeClass(task.status)">
               {{ task.status | titlecase }}
             </span>
             <small class="text-muted">
               {{ task.createdAt | date:'mediumDate' }}
             </small>
+          </div>
+          
+          <!-- Additional Task Details -->
+          <div *ngIf="task.dueDate || task.category || task.tagList" class="small mb-2">
+            <!-- Category -->
+            <div *ngIf="task.category" class="mb-1">
+              <strong>Category:</strong> {{ task.category | titlecase }}
+            </div>
+            
+            <!-- Due Date -->
+            <div *ngIf="task.dueDate" class="mb-1">
+              <strong>Due:</strong> {{ task.dueDate | date:'mediumDate' }}
+            </div>
+            
+            <!-- Tags -->
+            <div *ngIf="task.tagList && task.tagList.length" class="mb-1">
+              <strong>Tags:</strong>
+              <span *ngFor="let tag of task.tagList" class="badge bg-secondary me-1">{{ tag }}</span>
+            </div>
           </div>
         </div>
 
@@ -56,11 +85,11 @@
                class="btn btn-sm btn-outline-primary">
               ✏️ Edit
             </a>
-            
-            <button class="btn btn-sm btn-outline-danger" 
-                    (click)="deleteTask(task.id!)">
-              🗑 Delete
-            </button>
+    <button 
+                    class="btn btn-sm btn-outline-danger"
+                    (click)="deleteTask(task)">
+                    Delete
+                  </button>
           </div>
         </div>
       </div>

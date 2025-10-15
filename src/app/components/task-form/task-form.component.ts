@@ -1,8 +1,6 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, EventEmitter, Input, Output, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { Router, ActivatedRoute } from '@angular/router';
-import { TaskService } from '../../services/task.service';
+import { FormsModule, NgForm } from '@angular/forms';
 import { Task } from '../../models/task.model';
 
 @Component({
@@ -10,69 +8,95 @@ import { Task } from '../../models/task.model';
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './task-form.component.html',
-  styles: []
+  styles: [`
+    .ng-invalid.ng-touched:not(form) {
+      border-color: #dc3545;
+    }
+    
+    .ng-valid.ng-dirty:not(form) {
+      border-color: #198754;
+    }
+  `]
 })
-export class TaskFormComponent implements OnInit {
+export class TaskFormComponent {
   @Input() task: Task = {
+    id: '',
     title: '',
     description: '',
-    status: 'pending'
+    status: 'pending',
+    priority: 'medium',
+    category: '',
+    dueDate: null,
+    tags: '',
+    reminder: false,
+    recurring: false,
+    createdAt: new Date(),
+    updatedAt: new Date()
   };
-  @Input() isEditMode: boolean = false;
-  isSubmitting: boolean = false;
-
-  constructor(
-    private taskService: TaskService,
-    private router: Router,
-    private route: ActivatedRoute
-  ) {}
-
-  ngOnInit(): void {
-    const taskId = this.route.snapshot.paramMap.get('id');
-    if (taskId) {
-      this.isEditMode = true;
-      this.loadTask(parseInt(taskId));
-    }
-  }
-
-  loadTask(id: number): void {
-    this.taskService.getTask(id).subscribe({
-      next: (task) => {
-        this.task = task;
-      },
-      error: (error) => {
-        console.error('Error loading task:', error);
-        alert('Error loading task details');
-      }
-    });
-  }
-
+  
+  @Input() isEditMode = false;
+  @ViewChild('taskForm') taskForm!: NgForm;
+  
+  @Output() save = new EventEmitter<Task>();
+  @Output() cancel = new EventEmitter<void>();
+  
+  isSubmitting = false;
+  showDebug = false; // Set to true during development to see form state
+  
   onSubmit(): void {
-    if (!this.task.title.trim()) {
-      alert('Title is required');
+    if (this.taskForm.invalid) {
+      // Mark all fields as touched to trigger validation messages
+      Object.keys(this.taskForm.controls).forEach(key => {
+        const control = this.taskForm.controls[key];
+        control.markAsTouched();
+      });
       return;
     }
-
+    
     this.isSubmitting = true;
-
-    const operation = this.isEditMode 
-      ? this.taskService.updateTask(this.task)
-      : this.taskService.addTask(this.task);
-
-    operation.subscribe({
-      next: () => {
-        this.isSubmitting = false;
-        this.router.navigate(['/tasks']);
-      },
-      error: (error) => {
-        console.error('Error saving task:', error);
-        this.isSubmitting = false;
-        alert('Error saving task');
-      }
-    });
+    
+    // Process tags if provided (convert comma-separated string to array)
+    if (this.task.tags && typeof this.task.tags === 'string') {
+      this.task.tagList = this.task.tags.split(',').map(tag => tag.trim()).filter(tag => tag);
+    }
+    
+    // Update timestamps
+    if (!this.isEditMode) {
+      this.task.createdAt = new Date();
+    }
+    this.task.updatedAt = new Date();
+    
+    // Emit the task to be saved
+    setTimeout(() => {
+      this.save.emit(this.task);
+      this.isSubmitting = false;
+    }, 600); // Simulate API delay
   }
-
+  
   onCancel(): void {
-    this.router.navigate(['/tasks']);
+    this.cancel.emit();
+  }
+  
+  // Helper method to reset the form
+  resetForm(): void {
+    if (this.taskForm) {
+      this.taskForm.resetForm();
+      
+      // Reset to default values
+      this.task = {
+        id: '',
+        title: '',
+        description: '',
+        status: 'pending',
+        priority: 'medium',
+        category: '',
+        dueDate: null,
+        tags: '',
+        reminder: false,
+        recurring: false,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      };
+    }
   }
 }
